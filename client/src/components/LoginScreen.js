@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../auth'
 import Copyright from './Copyright'
 import Avatar from '@mui/material/Avatar';
@@ -13,27 +13,70 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { GlobalStoreContext } from '../store'
 
 const theme = createTheme();
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 300,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    textAlign: 'center',
+  };
 
 export default function LoginScreen() {
     const { auth } = useContext(AuthContext);
-    const { store } = useContext(GlobalStoreContext)
+    const { store } = useContext(GlobalStoreContext);
+    const [message, setMessage] = useState("");
+    const [open, setOpen] = useState(false);
+
+    const handleOpen = () => {
+        setOpen(true);
+    };
+    const handleClose = () => {
+       setOpen(false);
+    };
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
       
+        
         auth.loginUser({
             email: data.get('email'),
             password: data.get('password'),
-        }, store);
+        }, store)
+            .then(setMessage(""))
+            .catch(error => setMessage(error.message), handleOpen())
     };
+
+    let errorBox = 
+        <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+        >
+            <Box sx={style}>
+                <Typography id="modal-modal-description" sx={{ mt: 1 }} color="red">
+                    {message}
+                </Typography>
+                
+                <Button onClick={handleClose}>Close</Button>
+            </Box>
+        </Modal>
+
 
     return (
             <ThemeProvider theme={theme}>
+                {errorBox}
                 <Grid container component="main" sx={{ height: '100vh' }}>
                 <CssBaseline />
                 <Grid
@@ -106,7 +149,7 @@ export default function LoginScreen() {
                             </Link>
                         </Grid>
                         <Grid item>
-                            <Link href="#" variant="body2">
+                            <Link href="http://localhost:3000/register" variant="body2">
                             {"Don't have an account? Sign Up"}
                             </Link>
                         </Grid>

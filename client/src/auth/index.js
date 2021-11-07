@@ -20,7 +20,8 @@ function AuthContextProvider(props) {
     const history = useHistory();
 
     useEffect(() => {
-        auth.getLoggedIn();
+        if(auth.loggedIn)
+            auth.getLoggedIn();
     }, []);
 
     const authReducer = (action) => {
@@ -65,8 +66,9 @@ function AuthContextProvider(props) {
     }
 
     auth.registerUser = async function(userData, store) {
-        const response = await api.registerUser(userData);      
-        if (response.status === 200) {
+        try{
+            const response = await api.registerUser(userData);      
+            if (response.status === 200) {
             authReducer({
                 type: AuthActionType.REGISTER_USER,
                 payload: {
@@ -76,11 +78,19 @@ function AuthContextProvider(props) {
             history.push("/");
             store.loadIdNamePairs();
         }
+
+        } catch(err){
+            if(err.response){
+                throw new Error(err.response.data.errorMessage);
+            }
+        }
     }
 
     auth.loginUser = async function(userData, store) {
-        const response = await api.loginUser(userData);      
-        if (response.status === 200) {
+
+        try{
+            const response = await api.loginUser(userData);      
+            if (response.status === 200) {
             authReducer({
                 type: AuthActionType.LOGIN_USER,
                 payload: {
@@ -90,6 +100,13 @@ function AuthContextProvider(props) {
             history.push("/");
             store.loadIdNamePairs();
         } 
+
+        }catch(err){
+            if(err.response){
+                throw new Error(err.response.data.errorMessage);
+            }
+        }
+        
     }
 
     return (

@@ -121,7 +121,6 @@ loginUser = async (req, res) => {
         }
 
     } catch (err) {
-        console.log(err.errorMessage);
         console.error(err);
         res.status(500).send();
     }
