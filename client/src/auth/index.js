@@ -82,14 +82,14 @@ function AuthContextProvider(props) {
         const response = await api.loginUser(userData);      
         if (response.status === 200) {
             authReducer({
-                type: AuthActionType.REGISTER_USER,
+                type: AuthActionType.LOGIN_USER,
                 payload: {
                     user: response.data.user
                 }
             })
             history.push("/");
             store.loadIdNamePairs();
-        }
+        } 
     }
 
     return (

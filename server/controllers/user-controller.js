@@ -49,11 +49,11 @@ registerUser = async (req, res) => {
         }
 
         const saltRounds = 10;
-        const salt = await bcrypt.genSalt(saltRounds);
-        const passwordHash = await bcrypt.hash(password, salt);
+        const passwordSalt = await bcrypt.genSalt(saltRounds);
+        const passwordHash = await bcrypt.hash(password, passwordSalt);
 
         const newUser = new User({
-            firstName, lastName, email, passwordHash
+            firstName, lastName, email, passwordHash, passwordSalt
         });
         const savedUser = await newUser.save();
 
@@ -78,7 +78,57 @@ registerUser = async (req, res) => {
     }
 }
 
+loginUser = async (req, res) => {
+    try {
+        const {email, password} = req.body;
+        if (!email || !password ) {
+            return res
+                .status(400)
+                .json({ errorMessage: "Please enter all required fields." });
+        }
+        
+        const existingUser = await User.findOne({ email: email });
+
+        if (!existingUser) {
+            return res
+                .status(400)
+                .json({
+                    errorMessage: "User with that email does not exist."
+                });
+        }else{
+            const passwordHash = await bcrypt.hash(password, existingUser.passwordSalt);
+            if(passwordHash === existingUser.passwordHash){
+                const token = auth.signToken(existingUser);
+                await res.cookie("token", token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none"
+                }).status(200).json({
+                    success: true,
+                    user: {
+                        firstName: existingUser.firstName,
+                        lastName: existingUser.lastName,
+                        email: existingUser.email
+                    }
+                }).send();
+            } else{
+                return res
+                .status(400)
+                .json({
+                    errorMessage: "Password is incorrect."
+                });
+            }
+        }
+
+    } catch (err) {
+        console.log(err.errorMessage);
+        console.error(err);
+        res.status(500).send();
+    }
+}
+
 module.exports = {
     getLoggedIn,
-    registerUser
+    registerUser,
+    loginUser,
 }
