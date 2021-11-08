@@ -58,7 +58,7 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.CHANGE_LIST_NAME: {
                 return setStore({
                     idNamePairs: payload.idNamePairs,
-                    currentList: payload.top5List,
+                    currentList: null,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -188,7 +188,7 @@ function GlobalStoreContextProvider(props) {
                                 type: GlobalStoreActionType.CHANGE_LIST_NAME,
                                 payload: {
                                     idNamePairs: userPairsArray,
-                                    top5List: top5List
+                            
                                 }
                             });
                         }
@@ -196,7 +196,7 @@ function GlobalStoreContextProvider(props) {
                     getListPairs(top5List);
                 }
             }
-            updateList(top5List);
+            updateList(top5List)
         }
     }
 
@@ -280,8 +280,13 @@ function GlobalStoreContextProvider(props) {
     }
 
     store.deleteList = async function (listToDelete) {
-        let response = await api.deleteTop5ListById(listToDelete._id);
-        if (response.data.success) {
+        try{
+            let response = await api.deleteTop5ListById(listToDelete._id);
+            if (response.data.success) {
+                store.loadIdNamePairs();
+                history.push("/");
+            }
+        }catch(err){
             store.loadIdNamePairs();
             history.push("/");
         }
@@ -297,6 +302,7 @@ function GlobalStoreContextProvider(props) {
             payload: null
         });
     }
+
 
     // THE FOLLOWING 8 FUNCTIONS ARE FOR COORDINATING THE UPDATING
     // OF A LIST, WHICH INCLUDES DEALING WITH THE TRANSACTION STACK. THE

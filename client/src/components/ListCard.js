@@ -6,6 +6,7 @@ import ListItem from '@mui/material/ListItem';
 import IconButton from '@mui/material/IconButton';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteModal from './DeleteModal'
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -20,7 +21,8 @@ function ListCard(props) {
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState(idNamePair.name);
     
-
+    const [open, setOpen] = useState(false);
+    
     function handleLoadList(event, id) {
         if (!event.target.disabled) {
             // CHANGE THE CURRENT LIST
@@ -44,6 +46,9 @@ function ListCard(props) {
     async function handleDeleteList(event, id) {
         event.stopPropagation();
         store.markListForDeletion(id);
+        setOpen(true);
+        setOpen(true);
+        store.markListForDeletion(id);
     }
 
     function handleKeyPress(event) {
@@ -64,7 +69,8 @@ function ListCard(props) {
             sx={{ marginTop: '15px', display: 'flex', p: 1 }}
             button
             onClick={(event) => {
-                handleLoadList(event, idNamePair._id)
+                if(!open)
+                    handleLoadList(event, idNamePair._id)
             }
             }
             style={{
@@ -85,6 +91,11 @@ function ListCard(props) {
                         <DeleteIcon style={{fontSize:'48pt'}} />
                     </IconButton>
                 </Box>
+                <DeleteModal 
+                    open={open}
+                    setOpen={setOpen}
+                    listName={idNamePair.name}
+                />
         </ListItem>
 
     if (editActive) {
@@ -105,6 +116,7 @@ function ListCard(props) {
                 InputLabelProps={{style: {fontSize: 24}}}
                 autoFocus
             />
+            
     }
     return (
         cardElement

@@ -12,15 +12,15 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Modal from '@mui/material/Modal';
+import Alert from '@mui/material/Alert';
 import { GlobalStoreContext } from '../store'
-import { red } from '@mui/material/colors';
 
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 300,
+    width: 400,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -53,7 +53,7 @@ export default function RegisterScreen() {
             password: formData.get('password'),
             passwordVerify: formData.get('passwordVerify')
         }, store)
-            .then(setMessage(""))
+            .then(setMessage(""), handleClose())
             .catch(error => setMessage(error.message), handleOpen());
         
     };
@@ -67,16 +67,13 @@ export default function RegisterScreen() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-description" sx={{ mt: 1 }} color="red">
-                        {message}
+                    <Typography id="modal-modal-description" sx={{ mt: 1 }}>
+                        <Alert onClose={handleClose} severity="error"> {message} </Alert>
                     </Typography>
-                    
-                    <Button onClick={handleClose}>Close</Button>
                 </Box>
             </Modal>
     
     return (
-
         <Container component="main" maxWidth="xs">
             {errorBox}
             <CssBaseline />

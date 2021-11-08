@@ -14,6 +14,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
+import Alert from '@mui/material/Alert';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { GlobalStoreContext } from '../store'
 
@@ -23,7 +24,7 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 300,
+    width: 400,
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -53,7 +54,7 @@ export default function LoginScreen() {
             email: data.get('email'),
             password: data.get('password'),
         }, store)
-            .then(setMessage(""))
+            .then(setMessage(""), handleClose())
             .catch(error => setMessage(error.message), handleOpen())
     };
 
@@ -65,11 +66,9 @@ export default function LoginScreen() {
             aria-describedby="modal-modal-description"
         >
             <Box sx={style}>
-                <Typography id="modal-modal-description" sx={{ mt: 1 }} color="red">
-                    {message}
+                <Typography id="modal-modal-description" sx={{ mt: 1 }}>
+                    <Alert onClose={handleClose} severity="error"> {message} </Alert>
                 </Typography>
-                
-                <Button onClick={handleClose}>Close</Button>
             </Box>
         </Modal>
 
