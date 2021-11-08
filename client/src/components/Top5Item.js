@@ -22,12 +22,12 @@ function Top5Item(props) {
 
     function handleDragOver(event) {
         event.preventDefault();
+        setDraggedTo(true);
     }
 
     function handleDragEnter(event) {
         event.preventDefault();
         console.log("entering");
-        setDraggedTo(true);
     }
 
     function handleDragLeave(event) {
@@ -45,8 +45,35 @@ function Top5Item(props) {
         console.log("handleDrop (sourceId, targetId): ( " + sourceId + ", " + targetId + ")");
 
         // UPDATE THE LIST
-        store.addMoveItemTransaction(sourceId, targetId);
+        if(sourceId != targetId){
+            store.addMoveItemTransaction(sourceId, targetId);
+        }
+        
     }
+
+    function handleToggleEdit(event) {
+        event.stopPropagation();
+        toggleEdit();
+    }
+
+    function toggleEdit() {
+        let newActive = !editActive;
+        if (newActive) {
+            store.setIsItemEditActive();
+        }
+        setEditActive(newActive);
+        
+    }
+
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            let { index } = props;
+            let text = event.target.value;
+            store.addUpdateItemTransaction(index, text);
+            toggleEdit();
+        }
+    }
+
 
     let { index } = props;
 
@@ -55,41 +82,64 @@ function Top5Item(props) {
         itemClass = "top5-item-dragged-to";
     }
 
-    return (
-            <ListItem
-                id={'item-' + (index+1)}
-                key={props.key}
-                className={itemClass}
-                onDragStart={(event) => {
-                    handleDragStart(event, (index+1))
-                }}
-                onDragOver={(event) => {
-                    handleDragOver(event, (index+1))
-                }}
-                onDragEnter={(event) => {
-                    handleDragEnter(event, (index+1))
-                }}
-                onDragLeave={(event) => {
-                    handleDragLeave(event, (index+1))
-                }}
-                onDrop={(event) => {
-                    handleDrop(event, (index+1))
-                }}
-                draggable="true"
-                sx={{ display: 'flex', p: 1 }}
-                style={{
-                    fontSize: '48pt',
-                    width: '100%'
-                }}
-            >
-            <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit'>
-                    <EditIcon style={{fontSize:'48pt'}}  />
-                </IconButton>
-            </Box>
-                <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
-            </ListItem>
-    )
+
+    if(!editActive){
+
+        return (
+                <ListItem
+                    id={'item-' + (index+1)}
+                    key={props.key}
+                    className={itemClass}
+                    onDragStart={(event) => {
+                        handleDragStart(event, (index+1))
+                    }}
+                    onDragOver={(event) => {
+                        handleDragOver(event, (index+1))
+                    }}
+                    onDragEnter={(event) => {
+                        handleDragEnter(event, (index+1))
+                    }}
+                    onDragLeave={(event) => {
+                        handleDragLeave(event, (index+1))
+                    }}
+                    onDrop={(event) => {
+                        handleDrop(event, (index+1))
+                    }}
+                    draggable = {!store.isItemEditActive}
+                    sx={{ display: 'flex', p: 1 }}
+                    style={{
+                        fontSize: '48pt',
+                        width: '100%'
+                    }}
+                >
+                <Box sx={{ p: 1 }}>
+                    <IconButton disabled={store.isItemEditActive} onClick={handleToggleEdit} aria-label='edit'>
+                        <EditIcon style={{fontSize:'48pt'}}  />
+                    </IconButton>
+                </Box>
+                    <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
+                </ListItem>
+        )
+    } else{
+
+        return(
+                <TextField
+                    margin="normal"
+                    required
+                    fullWidth
+                    id={'item-' + (index+1)}
+                    label="Top 5 Item Name"
+                    name="name"
+                    autoComplete="Top 5 Item Name"
+                    className='list-card'
+                    onKeyPress={handleKeyPress}
+                    defaultValue={props.text}
+                    inputProps={{style: {fontSize: 48}}}
+                    InputLabelProps={{style: {fontSize: 24}}}
+                    autoFocus
+                />      
+        )
+    }
 }
 
 export default Top5Item;
