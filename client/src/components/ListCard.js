@@ -16,9 +16,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 */
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
-    const [editActive, setEditActive] = useState(false);
-    const [text, setText] = useState("");
     const { idNamePair } = props;
+    const [editActive, setEditActive] = useState(false);
+    const [text, setText] = useState(idNamePair.name);
+    
 
     function handleLoadList(event, id) {
         if (!event.target.disabled) {

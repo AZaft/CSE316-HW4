@@ -9,7 +9,8 @@ console.log("create AuthContext: " + AuthContext);
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     REGISTER_USER: "REGISTER_USER",
-    LOGIN_USER: "LOGIN_USER"
+    LOGIN_USER: "LOGIN_USER",
+    LOGOUT_USER: "LOGOUT_USER"
 }
 
 function AuthContextProvider(props) {
@@ -44,6 +45,13 @@ function AuthContextProvider(props) {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true
+                })
+            }
+
+            case AuthActionType.LOGOUT_USER: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false
                 })
             }
 
@@ -107,6 +115,16 @@ function AuthContextProvider(props) {
             }
         }
         
+    }
+
+    auth.logoutUser = async function(){
+        authReducer({
+            type: AuthActionType.LOGOUT_USER,
+            payload: {
+                
+            }
+        });
+        history.push("/");
     }
 
     return (
