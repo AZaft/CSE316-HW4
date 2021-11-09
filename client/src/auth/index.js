@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useRef, useState } from "react";
 import { useHistory } from 'react-router-dom'
 import api from '../api'
 
@@ -21,8 +21,7 @@ function AuthContextProvider(props) {
     const history = useHistory();
 
     useEffect(() => {
-        if(auth.loggedIn)
-            auth.getLoggedIn();
+        auth.getLoggedIn();
     }, []);
 
     const authReducer = (action) => {
@@ -61,15 +60,19 @@ function AuthContextProvider(props) {
     }
 
     auth.getLoggedIn = async function () {
-        const response = await api.getLoggedIn();
-        if (response.status === 200) {
-            authReducer({
-                type: AuthActionType.SET_LOGGED_IN,
-                payload: {
-                    loggedIn: response.data.loggedIn,
-                    user: response.data.user
-                }
-            });
+        try{
+            const response = await api.getLoggedIn();
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.GET_LOGGED_IN,
+                    payload: {
+                        loggedIn: response.data.loggedIn,
+                        user: response.data.user
+                    }
+                });
+            }
+        } catch(err){
+
         }
     }
 
@@ -117,14 +120,17 @@ function AuthContextProvider(props) {
         
     }
 
-    auth.logoutUser = async function(){
-        authReducer({
-            type: AuthActionType.LOGOUT_USER,
-            payload: {
-                
-            }
-        });
-        history.push("/");
+    auth.logoutUser = async function(userData){
+        const response = await api.logoutUser(auth.user);
+        if (response.status === 200) {
+            authReducer({
+                type: AuthActionType.LOGOUT_USER,
+                payload: {
+                    
+                }
+            });
+            history.push("/");
+        }
     }
 
     return (
